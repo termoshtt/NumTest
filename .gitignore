@@ -1,0 +1,46 @@
+# git ls-files --others --exclude-from=.git/info/exclude
+# Lines that start with '#' are comments.
+# For a project mostly in C, the following would be a good set of
+# exclude patterns (uncomment them if you want to use them):
+*.[oad]
+*.so
+*.pyc
+*~
+.*.swp
+doc/html
+.tags
+
+# 実行時に生成するもの
+*.dat
+*.csv
+*.vtk
+*.vtr
+*.log
+*.png
+*.eps
+*.frm
+*.bin
+*.field
+*.real
+*.ipynb
+.ipythyon_*
+
+# for cmake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+TEST*
+CTestTestfile.cmake
+Testing
+
+# gprof
+gmon.out
+
+*.wxm
+*.html
+*.cfg
+
+.directory
+
