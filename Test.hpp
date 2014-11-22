@@ -2,6 +2,8 @@
 
 #include <string>
 #include <mutex>
+#include <iostream>
+#include <cmath>
 
 /*!
  * @namespace NumTest
@@ -31,16 +33,16 @@ namespace NumTest {
 class Test {
   std::string name, desc;
   double eps;
-  size_t count;
+  size_t count, failed_count;
 
 public:
   Test(const char *name /** identifier of test */,
        const char *desc = "" /** description of test */,
        double eps = 1e-14 /** acceptable error */)
-      : name(name), desc(desc), eps(eps), count(1) {}
+      : name(name), desc(desc), eps(eps), count(0), failed_count(0) {}
 
   /** reset filename of the result XML */
-  void reset_filename(const char *filename);
+  void reset_filename(const char *);
 
   /** reset acceptable error */
   void reset_eps(double eps_) { eps = eps_; }
@@ -50,10 +52,39 @@ public:
   std::string get_desc() const { return desc; }
 
   /** test two values are equal */
-  template <typename T> void equal(T val, T ans);
+  template <typename T> void equal(T val, T ans) {
+    double res;
+    if ((double)ans == 0.0) {
+      res = std::abs(val);
+    } else {
+      res = std::abs((val - ans) / ans);
+    }
+    if (res > eps || !std::isfinite(val)) {
+      failed_count++;
+      std::clog << "Name  : " << name << "\n"
+                << "Type  : Value\n"
+                << "Index : " << count << "\n"
+                << "Desc  : " << desc << "\n"
+                << "Result: Failed\n"
+                << "Res   : " << res << "\n"
+                << "Eps   : " << eps << std::endl;
+    } else {
+      std::clog << "Name  : " << name << "\n"
+                << "Type  : Value\n"
+                << "Index : " << count << "\n"
+                << "Desc  : " << desc << "\n"
+                << "Result: Success\n"
+                << "Res   : " << res << "\n"
+                << "Eps   : " << eps << std::endl;
+    }
+    count++;
+  }
   /** test two ranges are equal */
   template <typename Range>
-  void range_equal(const Range &val, const Range 6ans);
+  void range_equal(const Range &val, const Range &ans);
+
+  /** return the number of failed tests */
+  size_t num_failed_tests() const { return failed_count; }
 };
 
 } // namespace NumTest
