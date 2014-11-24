@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 /*!
  * @namespace NumTest
@@ -33,12 +35,19 @@ class Test {
   std::string name, desc;
   double eps;
   size_t count, failed_count;
+  boost::property_tree::ptree root, &tc;
 
 public:
   Test(const char *name /** identifier of test */,
        const char *desc = "" /** description of test */,
        double eps = 1e-14 /** acceptable error */)
-      : name(name), desc(desc), eps(eps), count(0), failed_count(0) {}
+      : name(name), desc(desc), eps(eps), count(0), failed_count(0),
+        tc(root.add("testClass", "")) {
+    tc.put("name", name);
+    tc.put("description", desc);
+    tc.put("eps", eps);
+  }
+  ~Test() { write_xml(name + ".xml", root); }
 
   /** reset filename of the result XML */
   void reset_filename(const char *);
@@ -58,25 +67,17 @@ public:
     } else {
       res = std::abs((val - ans) / ans);
     }
+    auto &t = tc.add("test", "");
+    t.put("type", "value");
+    t.put("residual", res);
+    t.put("index", count);
+    count++;
     if (res > eps || !std::isfinite(val)) {
       failed_count++;
-      std::clog << "Name  : " << name << "\n"
-                << "Type  : Value\n"
-                << "Index : " << count << "\n"
-                << "Desc  : " << desc << "\n"
-                << "Result: Failed\n"
-                << "Res   : " << res << "\n"
-                << "Eps   : " << eps << std::endl;
+      t.put("result", "failed");
     } else {
-      std::clog << "Name  : " << name << "\n"
-                << "Type  : Value\n"
-                << "Index : " << count << "\n"
-                << "Desc  : " << desc << "\n"
-                << "Result: Success\n"
-                << "Res   : " << res << "\n"
-                << "Eps   : " << eps << std::endl;
+      t.put("result", "success");
     }
-    count++;
   }
   /** test two ranges are equal */
   template <typename Range>
@@ -92,23 +93,16 @@ public:
     }
     if (sum > 0.0)
       res /= sum;
+    auto &t = tc.add("test", "");
+    t.put("type", "range");
+    t.put("index", count);
+    t.put("N", N);
+    t.put("residual", res);
     if (res > N * eps || !std::isfinite(res)) {
       failed_count++;
-      std::clog << "Name  : " << name << "\n"
-                << "Type  : Range\n"
-                << "Index : " << count << "\n"
-                << "Desc  : " << desc << "\n"
-                << "Result: Failed\n"
-                << "Res   : " << res << "\n"
-                << "Eps   : " << eps << std::endl;
+      t.put("result", "failed");
     } else {
-      std::clog << "Name  : " << name << "\n"
-                << "Type  : Value\n"
-                << "Index : " << count << "\n"
-                << "Desc  : " << desc << "\n"
-                << "Result: Success\n"
-                << "Res   : " << res << "\n"
-                << "Eps   : " << eps << std::endl;
+      t.put("result", "success");
     }
   }
 
