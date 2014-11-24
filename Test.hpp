@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <mutex>
 #include <iostream>
 #include <cmath>
 
@@ -81,7 +80,37 @@ public:
   }
   /** test two ranges are equal */
   template <typename Range>
-  void range_equal(const Range &val, const Range &ans);
+  void range_equal(const Range &val, const Range &ans) {
+    auto b = std::begin(val);
+    auto e = std::end(val);
+    auto a = std::begin(ans);
+    size_t N = e - b;
+    double res, sum;
+    for (; b != e; ++b, ++a) {
+      sum += std::abs(a);
+      res += std::abs(*b - *a);
+    }
+    if (sum > 0.0)
+      res /= sum;
+    if (res > N * eps || !std::isfinite(res)) {
+      failed_count++;
+      std::clog << "Name  : " << name << "\n"
+                << "Type  : Range\n"
+                << "Index : " << count << "\n"
+                << "Desc  : " << desc << "\n"
+                << "Result: Failed\n"
+                << "Res   : " << res << "\n"
+                << "Eps   : " << eps << std::endl;
+    } else {
+      std::clog << "Name  : " << name << "\n"
+                << "Type  : Value\n"
+                << "Index : " << count << "\n"
+                << "Desc  : " << desc << "\n"
+                << "Result: Success\n"
+                << "Res   : " << res << "\n"
+                << "Eps   : " << eps << std::endl;
+    }
+  }
 
   /** return the number of failed tests */
   size_t num_failed_tests() const { return failed_count; }
