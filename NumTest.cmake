@@ -1,12 +1,18 @@
 set(NUMTESTXML "NumTest.xml" CACHE PATH "Path of result XML")
 enable_testing()
+
 add_custom_target(num_test COMMAND "ctest" "-R" "NumTest_.*")
 add_custom_target(num_test_short COMMAND "ctest" "-R" "NumTest_.*_S")
 add_custom_target(num_test_long COMMAND "ctest" "-R" "NumTest_.*_L")
+add_custom_target(discard_xml COMMAND "touch" ${NUMTESTXML} "&&" "rm" ${NUMTESTXML})
 add_custom_target(build_num_test)
+add_custom_target(new_num_test)
+
 add_dependencies(num_test build_num_test)
 add_dependencies(num_test_short build_num_test)
 add_dependencies(num_test_long build_num_test)
+add_dependencies(new_num_test num_test discard_xml)
+
 macro(add_num_test name type src)
   add_definitions(-DNUMTESTXML=${NUMTESTXML})
   set(test_name NumTest_${name}_${type})
