@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
@@ -47,7 +48,27 @@ public:
     tc.put("description", desc);
     tc.put("eps", eps);
   }
-  ~Test() { write_xml(name + ".xml", root); }
+  ~Test() {
+    boost::property_tree::ptree pt;
+#ifdef NUMTESTXML
+#define EVAL(f, v) f(v)
+#define TO_STR_IMPL(s) #s
+#define TO_STR(s) EVAL(TO_STR_IMPL, s)
+    std::string xml_fn = TO_STR(NUMTESTXML);
+    if (boost::filesystem::exists(xml_fn))
+      read_xml(xml_fn, pt);
+    else
+      pt.add("NumTest", "");
+#undef EVAL
+#undef TO_STR_IMPL
+#undef TO_STR
+#else
+    std::string xml_fn = name + ".xml";
+    pt.add("NumTest", "");
+#endif
+    pt.add_child("NumTest.testClass", tc);
+    write_xml(xml_fn, pt);
+  }
 
   /** reset filename of the result XML */
   void reset_filename(const char *);
@@ -55,7 +76,7 @@ public:
   /** reset acceptable error */
   void reset_eps(double eps_) { eps = eps_; }
   /** reset description */
-  void reset_desc(std::string desc_) { desc = desc_; };
+  void reset_desc(std::string desc_) { desc = desc_; }
   /** get current description */
   std::string get_desc() const { return desc; }
 
