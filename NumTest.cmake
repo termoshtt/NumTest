@@ -1,17 +1,37 @@
+#.rst:
+# NumTest
+# -------
+# 
+# Register test using termoshtt/NumTest
+#
+# This script serves following commands and targets:
+#
+# Commands:
+#  - add_num_test        - register executable using termoshtt/NumTest
+#  - add_num_test_long   - register executable which needs much time
+#  - add_num_test_short  - register executable which finish in a minute
+#
+# Targets:
+#  - num_test        - compile and execute all registered tests
+#  - num_test_long   - compile and execute tests registered via add_num_test_long
+#  - num_test_short  - compile and execute tests registered via add_num_test_short
+#  - new_num_test    - compile, remove old XML and execute all
+#
+
 set(NUMTESTXML "NumTest.xml" CACHE PATH "Path of result XML")
 enable_testing()
 
 add_custom_target(num_test COMMAND "ctest" "-R" "NumTest_.*")
 add_custom_target(num_test_short COMMAND "ctest" "-R" "NumTest_.*_S")
 add_custom_target(num_test_long COMMAND "ctest" "-R" "NumTest_.*_L")
-add_custom_target(discard_xml COMMAND "touch" ${NUMTESTXML} "&&" "rm" ${NUMTESTXML})
 add_custom_target(build_num_test)
-add_custom_target(new_num_test)
-
 add_dependencies(num_test build_num_test)
 add_dependencies(num_test_short build_num_test)
 add_dependencies(num_test_long build_num_test)
-add_dependencies(new_num_test num_test discard_xml)
+
+add_custom_target(new_num_test COMMAND "ctest" "-R" "NumTest_.*")
+add_custom_target(discard_xml COMMAND "touch" ${NUMTESTXML} "&&" "rm" ${NUMTESTXML})
+add_dependencies(new_num_test discard_xml build_num_test)
 
 macro(add_num_test name type src)
   add_definitions(-DNUMTESTXML=${NUMTESTXML})
