@@ -3,18 +3,17 @@
 
 using NumTest::Test;
 
-int main(int argc, char const *argv[]) {
-  Test t("test1");
+size_t test1() {
+  Test t("test1", "sample test 1");
 
   // int
-  t.reset_desc("sample test for integer");
   t.equal(1, 1);  // success
   t.equal(1, -1); // failed
   t.equal(1, 0);  // failed
   t.equal(0, 0);  // success
+  t.equal(3, 2);  // failed
 
   // double
-  t.reset_desc("simple test for float");
   t.equal(1.0, 1.0);             // success
   t.equal(1.0, -1.0);            // failed
   t.equal(1.0, 0.0);             // failed
@@ -22,8 +21,24 @@ int main(int argc, char const *argv[]) {
   t.equal(1.0 / 0.0, 1.0 / 0.0); // failed
 
   // mix
-  // t.equal(1.0, 0); // fails
+  t.equal(1.0, 0); // failed
 
-  std::cout << t.num_failed_tests() << std::endl;
-  return 0;
+  return t.num_failed_tests();
+}
+
+size_t test2() {
+  Test t("test2", "sample test 2", 1e-7);
+  t.equal(1.0 + 1e-8, 1.0); // success
+  t.equal(1.0 - 1e-6, 1.0); // failed
+  return t.num_failed_tests();
+}
+
+int main(int argc, char const *argv[]) {
+  Test t("NumTest", "test for NumTest.Test");
+  auto res1 = test1();
+  t.equal(res1, 7);
+
+  auto res2 = test2();
+  t.equal(res2, 1);
+  return t.num_failed_tests();
 }
