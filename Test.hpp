@@ -81,12 +81,12 @@ public:
   std::string get_desc() const { return desc; }
 
   /** test two values are equal */
-  template <typename T> void equal(T val, T ans) {
+  template <typename T, typename U> void equal(T val, U ans) {
     double res;
     if ((double)ans == 0.0) {
       res = std::abs(val);
     } else {
-      res = std::abs((val - ans) / ans);
+      res = std::abs((val - ans) / (double)ans);
     }
     auto &t = tc.add("test", "");
     t.put("type", "value");
