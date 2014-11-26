@@ -58,6 +58,8 @@
         <dd><xsl:value-of select="failedCount"/></dd>
         <dt>Max Residual</dt>
         <dd><xsl:value-of select="maxResidual"/></dd>
+        <dt>eps</dt>
+        <dd><xsl:value-of select="eps"/></dd>
       </dl>
       <span><xsl:value-of select="description"/></span>
       <table class="table table-striped table-condensed table-hover">
@@ -67,6 +69,7 @@
             <th>Type</th>
             <th>Result</th>
             <th>Residual</th>
+            <th>N</th>
           </tr>
         </thead>
         <tbody>
@@ -82,6 +85,7 @@
       <th><xsl:value-of select="type"/></th>
       <th><xsl:value-of select="result"/></th>
       <th><xsl:value-of select="residual"/></th>
+      <th><xsl:value-of select="N"/></th>
     </tr>
   </xsl:template>
  
