@@ -40,6 +40,7 @@
     <li>
       <a class="navbar-link">
         <xsl:attribute name="href">#<xsl:value-of select="name"/></xsl:attribute>
+        [<xsl:value-of select="failedCount"/>]
         <xsl:value-of select="name"/>
       </a>
     </li>
