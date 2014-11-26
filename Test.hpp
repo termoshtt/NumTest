@@ -109,7 +109,7 @@ public:
     size_t N = e - b;
     double res, sum;
     for (; b != e; ++b, ++a) {
-      sum += std::abs(a);
+      sum += std::abs(*a);
       res += std::abs(*b - *a);
     }
     if (sum > 0.0)
@@ -119,6 +119,7 @@ public:
     t.put("index", count);
     t.put("N", N);
     t.put("residual", res);
+    count++;
     if (res > N * eps || !std::isfinite(res)) {
       failed_count++;
       t.put("result", "failed");
