@@ -84,14 +84,12 @@ public:
   /** get current description */
   std::string get_desc() const { return desc; }
 
-  /** test two values are equal */
+  /** test |val - ans| < eps */
   template <typename T, typename U> void equal(T val, U ans) {
-    double res;
-    if ((double)ans == 0.0) {
-      res = std::abs(val);
-    } else {
-      res = std::abs((val - ans) / (double)ans);
-    }
+    double res = std::abs(val - ans);
+    if (std::fabs(ans) > eps)
+      res /= std::abs(ans);
+
     auto &t = tc.add("test", "");
     t.put("type", "value");
     t.put("residual", res);
@@ -105,19 +103,43 @@ public:
     }
     max_res = std::max(res, max_res);
   }
-  /** test two ranges are equal */
+
+  /** test |val - ans| / N < eps */
+  template <typename T, typename U> void reduced_equal(T val, U ans, size_t N) {
+    double res = std::abs(val - ans);
+    if (std::fabs(ans) > eps)
+      res /= std::fabs(ans);
+    res /= N;
+
+    auto &t = tc.add("test", "");
+    t.put("type", "reduced");
+    t.put("residual", res);
+    t.put("index", count);
+    t.put("N", N);
+    count++;
+    if (res > eps || !std::isfinite(val)) {
+      failed_count++;
+      t.put("result", "failed");
+    } else {
+      t.put("result", "success");
+    }
+    max_res = std::max(res, max_res);
+  }
+
+  /** test |val - ans|_2 / N < eps */
   template <typename Range>
   void range_equal(const Range &val, const Range &ans) {
     auto b = std::begin(val);
     auto e = std::end(val);
     auto a = std::begin(ans);
     size_t N = e - b;
-    double res, sum;
+    double res = 0., sum = 0.;
     for (; b != e; ++b, ++a) {
       sum += std::abs(*a);
       res += std::abs(*b - *a);
     }
-    if (sum > 0.0)
+    res /= N;
+    if (std::fabs(sum) > eps)
       res /= sum;
     auto &t = tc.add("test", "");
     t.put("type", "range");
@@ -125,7 +147,7 @@ public:
     t.put("N", N);
     t.put("residual", res);
     count++;
-    if (res > N * eps || !std::isfinite(res)) {
+    if (res > eps || !std::isfinite(res)) {
       failed_count++;
       t.put("result", "failed");
     } else {
@@ -136,6 +158,12 @@ public:
 
   /** return the number of failed tests */
   size_t num_failed_tests() const { return failed_count; }
+
+  operator int() { return num_failed_tests(); }
+  int operator+(int t) { return t + num_failed_tests(); }
+  int operator+(const Test &t) {
+    return t.num_failed_tests() + num_failed_tests();
+  }
 };
 
 } // namespace NumTest
