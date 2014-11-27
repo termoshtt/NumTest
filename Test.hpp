@@ -133,7 +133,7 @@ public:
     auto e = std::end(val);
     auto a = std::begin(ans);
     size_t N = e - b;
-    double res, sum;
+    double res = 0., sum = 0.;
     for (; b != e; ++b, ++a) {
       sum += std::abs(*a);
       res += std::abs(*b - *a);
