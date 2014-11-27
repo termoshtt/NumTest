@@ -35,15 +35,17 @@ namespace NumTest {
 class Test {
   std::string name, desc;
   double eps;
-  size_t count, failed_count;
   boost::property_tree::ptree root, &tc;
+
+  size_t count, failed_count;
+  double max_res;
 
 public:
   Test(const char *name /** identifier of test */,
        const char *desc = "" /** description of test */,
        double eps = 1e-14 /** acceptable error */)
-      : name(name), desc(desc), eps(eps), count(0), failed_count(0),
-        tc(root.add("testClass", "")) {
+      : name(name), desc(desc), eps(eps), tc(root.add("testClass", "")),
+        count(0), failed_count(0), max_res(0.0) {
     tc.put("name", name);
     tc.put("description", desc);
     tc.put("eps", eps);
@@ -66,6 +68,8 @@ public:
     std::string xml_fn = name + ".xml";
     pt.add("NumTest", "");
 #endif
+    tc.put("failedCount", failed_count);
+    tc.put("maxResidual", max_res);
     pt.add_child("NumTest.testClass", tc);
     write_xml(xml_fn, pt);
   }
@@ -99,6 +103,7 @@ public:
     } else {
       t.put("result", "success");
     }
+    max_res = std::max(res, max_res);
   }
   /** test two ranges are equal */
   template <typename Range>
@@ -126,6 +131,7 @@ public:
     } else {
       t.put("result", "success");
     }
+    max_res = std::max(res, max_res);
   }
 
   /** return the number of failed tests */
