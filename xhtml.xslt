@@ -71,6 +71,8 @@
             <th>Result</th>
             <th>Residual</th>
             <th>N</th>
+            <th>value</th>
+            <th>answer</th>
           </tr>
         </thead>
         <tbody>
@@ -87,6 +89,8 @@
       <th><xsl:value-of select="result"/></th>
       <th><xsl:value-of select="residual"/></th>
       <th><xsl:value-of select="N"/></th>
+      <th><xsl:value-of select="value"/></th>
+      <th><xsl:value-of select="answer"/></th>
     </tr>
   </xsl:template>
  

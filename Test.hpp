@@ -94,6 +94,8 @@ public:
     t.put("type", "value");
     t.put("residual", res);
     t.put("index", count);
+    t.put("value", val);
+    t.put("answer", ans);
     count++;
     if (res > eps || !std::isfinite(val)) {
       failed_count++;
@@ -116,6 +118,8 @@ public:
     t.put("residual", res);
     t.put("index", count);
     t.put("N", N);
+    t.put("value", val);
+    t.put("answer", ans);
     count++;
     if (res > eps || !std::isfinite(val)) {
       failed_count++;
