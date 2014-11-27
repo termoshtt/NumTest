@@ -87,7 +87,7 @@ public:
   /** test |val - ans| < eps */
   template <typename T, typename U> void equal(T val, U ans) {
     double res = std::abs(val - ans);
-    if ((double)ans != 0.0)
+    if (std::fabs(ans) > eps)
       res /= std::abs(ans);
 
     auto &t = tc.add("test", "");
@@ -107,8 +107,8 @@ public:
   /** test |val - ans| / N < eps */
   template <typename T, typename U> void reduced_equal(T val, U ans, size_t N) {
     double res = std::abs(val - ans);
-    if ((double)ans != 0.0)
-      res /= std::abs(ans);
+    if (std::fabs(ans) > eps)
+      res /= std::fabs(ans);
     res /= N;
 
     auto &t = tc.add("test", "");
@@ -139,7 +139,7 @@ public:
       res += std::abs(*b - *a);
     }
     res /= N;
-    if (sum > 0.0)
+    if (std::fabs(sum) > eps)
       res /= sum;
     auto &t = tc.add("test", "");
     t.put("type", "range");
