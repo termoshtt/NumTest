@@ -139,6 +139,7 @@ public:
       sum += std::abs(*a);
       res += std::abs(*b - *a);
     }
+    res /= N;
     if (sum > 0.0)
       res /= sum;
     auto &t = tc.add("test", "");
@@ -147,7 +148,7 @@ public:
     t.put("N", N);
     t.put("residual", res);
     count++;
-    if (res > N * eps || !std::isfinite(res)) {
+    if (res > eps || !std::isfinite(res)) {
       failed_count++;
       t.put("result", "failed");
     } else {
