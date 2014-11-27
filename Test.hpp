@@ -84,7 +84,7 @@ public:
   /** get current description */
   std::string get_desc() const { return desc; }
 
-  /** test two values are equal */
+  /** test |val - ans| < eps */
   template <typename T, typename U> void equal(T val, U ans) {
     double res;
     if ((double)ans == 0.0) {
@@ -127,7 +127,7 @@ public:
     max_res = std::max(res, max_res);
   }
 
-  /** test two ranges are equal */
+  /** test |val - ans|_2 / N < eps */
   template <typename Range>
   void range_equal(const Range &val, const Range &ans) {
     auto b = std::begin(val);
@@ -159,6 +159,12 @@ public:
 
   /** return the number of failed tests */
   size_t num_failed_tests() const { return failed_count; }
+
+  operator int() { return num_failed_tests(); }
+  int operator+(int t) { return t + num_failed_tests(); }
+  int operator+(const Test &t) {
+    return t.num_failed_tests() + num_failed_tests();
+  }
 };
 
 } // namespace NumTest
