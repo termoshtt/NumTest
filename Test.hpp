@@ -86,12 +86,10 @@ public:
 
   /** test |val - ans| < eps */
   template <typename T, typename U> void equal(T val, U ans) {
-    double res;
-    if ((double)ans == 0.0) {
-      res = std::abs(val);
-    } else {
-      res = std::abs((val - ans) / (double)ans);
-    }
+    double res = std::abs(val - ans);
+    if ((double)ans != 0.0)
+      res /= std::abs(ans);
+
     auto &t = tc.add("test", "");
     t.put("type", "value");
     t.put("residual", res);
@@ -108,9 +106,10 @@ public:
 
   /** test |val - ans| / N < eps */
   template <typename T, typename U> void reduced_equal(T val, U ans, size_t N) {
-    double res = std::abs(val - ans) / N;
+    double res = std::abs(val - ans);
     if ((double)ans != 0.0)
       res /= std::abs(ans);
+    res /= N;
 
     auto &t = tc.add("test", "");
     t.put("type", "reduced");
