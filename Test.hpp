@@ -105,6 +105,28 @@ public:
     }
     max_res = std::max(res, max_res);
   }
+
+  /** test |val - ans| / N < eps */
+  template <typename T, typename U> void reduced_equal(T val, U ans, size_t N) {
+    double res = std::abs(val - ans) / N;
+    if ((double)ans != 0.0)
+      res /= std::abs(ans);
+
+    auto &t = tc.add("test", "");
+    t.put("type", "reduced");
+    t.put("residual", res);
+    t.put("index", count);
+    t.put("N", N);
+    count++;
+    if (res > eps || !std::isfinite(val)) {
+      failed_count++;
+      t.put("result", "failed");
+    } else {
+      t.put("result", "success");
+    }
+    max_res = std::max(res, max_res);
+  }
+
   /** test two ranges are equal */
   template <typename Range>
   void range_equal(const Range &val, const Range &ans) {
