@@ -17,7 +17,7 @@
         <div class="container">
           <xsl:apply-templates select="testClass"/>
         </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"/>
+        <script src="js/jquery.min.js"/>
         <script src="js/bootstrap.min.js"/>
       </body>
     </html>

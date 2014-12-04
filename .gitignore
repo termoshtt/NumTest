@@ -35,3 +35,7 @@ CTestTestfile.cmake
 Testing
 
 NumTest_*
+
+# download Bootstrap and jQuery
+bootstrap-*.*.*-dist.zip*
+dist/
