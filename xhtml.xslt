@@ -27,7 +27,7 @@
   <xsl:template name="summary">
     <div>
       <h2>Summary</h2>
-      <table class="table table-striped table-hover">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th>Name</th>
@@ -45,6 +45,9 @@
 
   <xsl:template match="testClass" mode="summary">
     <tr>
+      <xsl:if test="failedCount > 0">
+        <xsl:attribute name="class">danger</xsl:attribute>
+      </xsl:if>
       <th>
         <a>
           <xsl:attribute name="href">#<xsl:value-of select="name"/></xsl:attribute>
@@ -95,6 +98,9 @@
 
   <xsl:template match="test">
     <tr>
+      <xsl:if test="result='failed'">
+        <xsl:attribute name="class">danger</xsl:attribute>
+      </xsl:if>
       <th><xsl:value-of select="index"/></th>
       <th><xsl:value-of select="type"/></th>
       <th><xsl:value-of select="result"/></th>
