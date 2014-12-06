@@ -13,8 +13,9 @@
         <link href="css/bootstrap.min.css" rel="stylesheet"/>
       </head>
       <body>
-        <xsl:call-template name="nav"/>
         <div class="container">
+          <h1>NumTest</h1>
+          <xsl:call-template name="summary"/>
           <xsl:apply-templates select="testClass"/>
         </div>
         <script src="js/jquery.min.js"/>
@@ -23,27 +24,40 @@
     </html>
   </xsl:template>
 
-  <xsl:template name="nav">
-    <nav class="navbar navbar-fixed-top" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header"/>
-        <div class="collapse navbar-collapse">
-          <ul class="nav nav-stacked nav-pills bg-info">
-            <xsl:apply-templates select="testClass" mode="nav"/>
-          </ul>
-        </div>
-      </div>
-    </nav>
+  <xsl:template name="summary">
+    <div>
+      <h2>Summary</h2>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Failed Count</th>
+            <th>Max Residual</th>
+            <th>EPS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <xsl:apply-templates select="testClass" mode="summary"/>
+        </tbody>
+      </table>
+    </div>
   </xsl:template>
 
-  <xsl:template match="testClass" mode="nav">
-    <li>
-      <a class="navbar-link">
-        <xsl:attribute name="href">#<xsl:value-of select="name"/></xsl:attribute>
-        [<xsl:value-of select="failedCount"/>]
-        <xsl:value-of select="name"/>
-      </a>
-    </li>
+  <xsl:template match="testClass" mode="summary">
+    <tr>
+      <xsl:if test="failedCount > 0">
+        <xsl:attribute name="class">danger</xsl:attribute>
+      </xsl:if>
+      <th>
+        <a>
+          <xsl:attribute name="href">#<xsl:value-of select="name"/></xsl:attribute>
+          <xsl:value-of select="name"/>
+        </a>
+      </th>
+      <th><xsl:value-of select="failedCount"/></th>
+      <th><xsl:value-of select="maxResidual"/></th>
+      <th><xsl:value-of select="eps"/></th>
+    </tr>
   </xsl:template>
  
   <xsl:template match="testClass">
@@ -84,6 +98,9 @@
 
   <xsl:template match="test">
     <tr>
+      <xsl:if test="result='failed'">
+        <xsl:attribute name="class">danger</xsl:attribute>
+      </xsl:if>
       <th><xsl:value-of select="index"/></th>
       <th><xsl:value-of select="type"/></th>
       <th><xsl:value-of select="result"/></th>
