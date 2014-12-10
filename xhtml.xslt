@@ -87,6 +87,7 @@
             <th>N</th>
             <th>value</th>
             <th>answer</th>
+            <th>comment</th>
           </tr>
         </thead>
         <tbody>
@@ -108,6 +109,7 @@
       <th><xsl:value-of select="N"/></th>
       <th><xsl:value-of select="value"/></th>
       <th><xsl:value-of select="answer"/></th>
+      <th><xsl:value-of select="comment"/></th>
     </tr>
   </xsl:template>
  
