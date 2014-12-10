@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <sstream>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -33,6 +34,29 @@
 namespace NumTest {
 
 class Test {
+  typedef boost::property_tree::ptree ptree;
+
+public:
+  class commentstream {
+    std::stringstream *ss;
+    ptree &t;
+
+  public:
+    commentstream(ptree &t) : ss(new std::stringstream()), t(t) {}
+    ~commentstream() {
+      if (!ss)
+        return;
+      auto comment = ss->str();
+      t.add("comment", comment);
+      delete ss;
+    }
+    template <typename T> std::stringstream &operator<<(const T &a) {
+      *ss << a;
+      return *ss;
+    }
+  };
+
+private:
   std::string name, desc;
   double eps;
   boost::property_tree::ptree root, &tc;
@@ -85,7 +109,7 @@ public:
   std::string get_desc() const { return desc; }
 
   /** test |val - ans| < eps */
-  template <typename T, typename U> void equal(T val, U ans) {
+  template <typename T, typename U> commentstream equal(T val, U ans) {
     double res = std::abs(val - ans);
     if (std::fabs(ans) > eps)
       res /= std::abs(ans);
@@ -104,6 +128,7 @@ public:
       t.put("result", "success");
     }
     max_res = std::max(res, max_res);
+    return commentstream(t);
   }
 
   /** test |val - ans| / N < eps */
