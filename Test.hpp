@@ -33,30 +33,33 @@
  */
 namespace NumTest {
 
+class Result {
+  typedef boost::property_tree::ptree ptree;
+
+  std::stringstream *ss;
+  ptree &t;
+  bool success;
+
+public:
+  Result(ptree &t, bool success)
+      : ss(new std::stringstream()), t(t), success(success) {}
+  ~Result() {
+    if (!ss)
+      return;
+    auto comment = ss->str();
+    t.add("comment", comment);
+    delete ss;
+  }
+  template <typename T> Result &operator<<(const T &a) {
+    *ss << a;
+    return *this;
+  }
+  operator bool() { return success; }
+};
+
 class Test {
   typedef boost::property_tree::ptree ptree;
 
-public:
-  class commentstream {
-    std::stringstream *ss;
-    ptree &t;
-
-  public:
-    commentstream(ptree &t) : ss(new std::stringstream()), t(t) {}
-    ~commentstream() {
-      if (!ss)
-        return;
-      auto comment = ss->str();
-      t.add("comment", comment);
-      delete ss;
-    }
-    template <typename T> std::stringstream &operator<<(const T &a) {
-      *ss << a;
-      return *ss;
-    }
-  };
-
-private:
   std::string name, desc;
   double eps;
   boost::property_tree::ptree root, &tc;
@@ -109,10 +112,11 @@ public:
   std::string get_desc() const { return desc; }
 
   /** test |val - ans| < eps */
-  template <typename T, typename U> commentstream equal(T val, U ans) {
+  template <typename T, typename U> Result equal(T val, U ans) {
     double res = std::abs(val - ans);
     if (std::fabs(ans) > eps)
       res /= std::abs(ans);
+    max_res = std::max(res, max_res);
 
     auto &t = tc.add("test", "");
     t.put("type", "value");
@@ -124,19 +128,21 @@ public:
     if (res > eps || !std::isfinite(val)) {
       failed_count++;
       t.put("result", "failed");
+      return Result(t, false);
     } else {
       t.put("result", "success");
+      return Result(t, true);
     }
-    max_res = std::max(res, max_res);
-    return commentstream(t);
   }
 
   /** test |val - ans| / N < eps */
-  template <typename T, typename U> void reduced_equal(T val, U ans, size_t N) {
+  template <typename T, typename U>
+  Result reduced_equal(T val, U ans, size_t N) {
     double res = std::abs(val - ans);
     if (std::fabs(ans) > eps)
       res /= std::fabs(ans);
     res /= N;
+    max_res = std::max(res, max_res);
 
     auto &t = tc.add("test", "");
     t.put("type", "reduced");
@@ -149,15 +155,16 @@ public:
     if (res > eps || !std::isfinite(val)) {
       failed_count++;
       t.put("result", "failed");
+      return Result(t, false);
     } else {
       t.put("result", "success");
+      return Result(t, true);
     }
-    max_res = std::max(res, max_res);
   }
 
   /** test |val - ans|_2 / N < eps */
   template <typename Range>
-  void range_equal(const Range &val, const Range &ans) {
+  Result range_equal(const Range &val, const Range &ans) {
     auto b = std::begin(val);
     auto e = std::end(val);
     auto a = std::begin(ans);
@@ -170,6 +177,8 @@ public:
     res /= N;
     if (std::fabs(sum) > eps)
       res /= sum;
+    max_res = std::max(res, max_res);
+
     auto &t = tc.add("test", "");
     t.put("type", "range");
     t.put("index", count);
@@ -179,10 +188,11 @@ public:
     if (res > eps || !std::isfinite(res)) {
       failed_count++;
       t.put("result", "failed");
+      return Result(t, false);
     } else {
       t.put("result", "success");
+      return Result(t, true);
     }
-    max_res = std::max(res, max_res);
   }
 
   /** return the number of failed tests */
