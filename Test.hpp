@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <type_traits>
 #include <cmath>
 #include <sstream>
 #include <boost/filesystem.hpp>
@@ -93,20 +94,62 @@ public:
   std::string get_desc() const { return desc; }
 
   /** test |val - ans| < eps */
-  template <typename T, typename U> Result equal(T val, U ans) {
+  template <typename T, typename U>
+  auto equal(T val, U ans)
+      -> typename std::enable_if<
+            std::is_floating_point<decltype(val - ans)>::value, Result>::type {
     double res = std::abs(val - ans);
     if (std::fabs(ans) > eps)
       res /= std::abs(ans);
     max_res = std::max(res, max_res);
 
     auto &t = tc.add("test", "");
-    t.put("type", "value");
+    t.put("type", "floating point");
     t.put("residual", res);
     t.put("index", count);
     t.put("value", val);
     t.put("answer", ans);
     count++;
     if (res > eps || !std::isfinite(val)) {
+      failed_count++;
+      t.put("result", "failed");
+      return Result(t, false);
+    } else {
+      t.put("result", "success");
+      return Result(t, true);
+    }
+  }
+
+  template <typename T, typename U>
+  auto equal(T val, U ans)
+      -> typename std::enable_if<std::is_integral<decltype(val - ans)>::value,
+                                 Result>::type {
+    double res = std::abs(val - ans);
+    auto &t = tc.add("test", "");
+    t.put("type", "integer");
+    t.put("residual", res);
+    t.put("index", count);
+    t.put("value", val);
+    t.put("answer", ans);
+    count++;
+    if (val != ans) {
+      failed_count++;
+      t.put("result", "failed");
+      return Result(t, false);
+    } else {
+      t.put("result", "success");
+      return Result(t, true);
+    }
+  }
+
+  /** test equality */
+  template <typename T, typename U>
+  auto equal(T val, U ans) -> typename std::enable_if<cond, Result>::type {
+    auto &t = tc.add("test", "");
+    t.put("type", "other");
+    t.put("index", count);
+    count++;
+    if (val != ans) {
       failed_count++;
       t.put("result", "failed");
       return Result(t, false);
