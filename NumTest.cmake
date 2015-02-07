@@ -19,6 +19,7 @@
 #
 
 set(NUMTESTXML "NumTest.xml" CACHE PATH "Path of result XML")
+find_package(Boost COMPONENTS filesystem system REQUIRED)
 enable_testing()
 
 add_custom_target(num_test COMMAND "ctest" "-R" "NumTest_.*")

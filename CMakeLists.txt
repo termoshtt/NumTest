@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(NumTest)
 add_definitions("-Wall -std=c++11")
-find_package(Boost COMPONENTS filesystem system REQUIRED)
 include(NumTest.cmake)
 add_subdirectory(test)
