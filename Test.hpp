@@ -93,11 +93,8 @@ public:
   /** get current description */
   std::string get_desc() const { return desc; }
 
-  /** test |val - ans| < eps */
-  template <typename T, typename U>
-  auto equal(T val, U ans)
-      -> typename std::enable_if<
-            std::is_floating_point<decltype(val - ans)>::value, Result>::type {
+  /** test equality of real numbers |val - ans| < eps */
+  template <typename T, typename U> Result equal_real(T val, U ans) {
     double res = std::abs(val - ans);
     if (std::fabs(ans) > eps)
       res /= std::abs(ans);
@@ -120,10 +117,8 @@ public:
     }
   }
 
-  template <typename T, typename U>
-  auto equal(T val, U ans)
-      -> typename std::enable_if<std::is_integral<decltype(val - ans)>::value,
-                                 Result>::type {
+  /** test equality of integers */
+  template <typename T, typename U> Result equal_int(T val, U ans) {
     double res = std::abs(val - ans);
     auto &t = tc.add("test", "");
     t.put("type", "integer");
@@ -142,9 +137,8 @@ public:
     }
   }
 
-  /** test equality */
-  template <typename T, typename U>
-  auto equal(T val, U ans) -> typename std::enable_if<cond, Result>::type {
+  /** test equality of general instances */
+  template <typename T, typename U> Result equal_other(T val, U ans) {
     auto &t = tc.add("test", "");
     t.put("type", "other");
     t.put("index", count);
