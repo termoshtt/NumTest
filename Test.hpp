@@ -26,18 +26,26 @@ class Result {
 public:
   Result(ptree &t, bool success)
       : ss(new std::stringstream()), t(t), success(success) {}
-  Result(Result &&r) : ss(std::move(r.ss)), t(r.t), success(r.success) {}
-  ~Result() {
-    if (!ss)
-      return;
-    auto comment = ss->str();
-    t.add("comment", comment);
+  Result(Result &&r) noexcept : ss(std::move(r.ss)),
+                                t(r.t),
+                                success(r.success) {
+    evaluate_comment();
   }
+  ~Result() { evaluate_comment(); }
+
   template <typename T> Result &operator<<(const T &a) {
     *ss << a;
     return *this;
   }
   operator bool() { return success; }
+
+private:
+  void evaluate_comment() {
+    if (!ss)
+      return;
+    auto comment = ss->str();
+    t.add("comment", comment);
+  }
 };
 
 class Test {
