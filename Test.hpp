@@ -26,6 +26,7 @@ class Result {
 public:
   Result(ptree &t, bool success)
       : ss(new std::stringstream()), t(t), success(success) {}
+  Result(Result &&r) : ss(std::move(r.ss)), t(r.t), success(r.success) {}
   ~Result() {
     if (!ss)
       return;
@@ -106,7 +107,7 @@ public:
     t.put("index", count);
     t.put("value", val);
     t.put("answer", ans);
-    return check(res > eps || !std::isfinite(val));
+    return gen_result(res > eps || !std::isfinite(val), t);
   }
 
   /** test equality of integers */
@@ -118,7 +119,7 @@ public:
     t.put("index", count);
     t.put("value", val);
     t.put("answer", ans);
-    return check(val != ans);
+    return gen_result(val != ans, t);
   }
 
   /** test equality of general instances */
@@ -126,7 +127,7 @@ public:
     auto &t = tc.add("test", "");
     t.put("type", "other");
     t.put("index", count);
-    return check(val != ans);
+    return gen_result(val != ans, t);
   }
 
   /** test |val - ans| / N < eps */
@@ -145,7 +146,7 @@ public:
     t.put("N", N);
     t.put("value", val);
     t.put("answer", ans);
-    return check(res > eps || !std::isfinite(val));
+    return gen_result(res > eps || !std::isfinite(val), t);
   }
 
   /** test |val - ans|_2 / N < eps */
@@ -170,7 +171,7 @@ public:
     t.put("index", count);
     t.put("N", N);
     t.put("residual", res);
-    return check(res > eps || !std::isfinite(val));
+    return gen_result(res > eps || !std::isfinite(val), t);
   }
 
   /** return the number of failed tests */
