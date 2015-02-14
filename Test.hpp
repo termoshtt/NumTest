@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <type_traits>
+#include <memory>
 #include <cmath>
 #include <sstream>
 #include <boost/filesystem.hpp>
@@ -18,7 +19,7 @@ namespace NumTest {
 class Result {
   typedef boost::property_tree::ptree ptree;
 
-  std::stringstream *ss;
+  std::unique_ptr<std::stringstream> ss;
   ptree &t;
   bool success;
 
@@ -30,7 +31,6 @@ public:
       return;
     auto comment = ss->str();
     t.add("comment", comment);
-    delete ss;
   }
   template <typename T> Result &operator<<(const T &a) {
     *ss << a;
@@ -106,15 +106,7 @@ public:
     t.put("index", count);
     t.put("value", val);
     t.put("answer", ans);
-    count++;
-    if (res > eps || !std::isfinite(val)) {
-      failed_count++;
-      t.put("result", "failed");
-      return Result(t, false);
-    } else {
-      t.put("result", "success");
-      return Result(t, true);
-    }
+    return check(res > eps || !std::isfinite(val));
   }
 
   /** test equality of integers */
@@ -126,15 +118,7 @@ public:
     t.put("index", count);
     t.put("value", val);
     t.put("answer", ans);
-    count++;
-    if (val != ans) {
-      failed_count++;
-      t.put("result", "failed");
-      return Result(t, false);
-    } else {
-      t.put("result", "success");
-      return Result(t, true);
-    }
+    return check(val != ans);
   }
 
   /** test equality of general instances */
@@ -142,15 +126,7 @@ public:
     auto &t = tc.add("test", "");
     t.put("type", "other");
     t.put("index", count);
-    count++;
-    if (val != ans) {
-      failed_count++;
-      t.put("result", "failed");
-      return Result(t, false);
-    } else {
-      t.put("result", "success");
-      return Result(t, true);
-    }
+    return check(val != ans);
   }
 
   /** test |val - ans| / N < eps */
@@ -169,15 +145,7 @@ public:
     t.put("N", N);
     t.put("value", val);
     t.put("answer", ans);
-    count++;
-    if (res > eps || !std::isfinite(val)) {
-      failed_count++;
-      t.put("result", "failed");
-      return Result(t, false);
-    } else {
-      t.put("result", "success");
-      return Result(t, true);
-    }
+    return check(res > eps || !std::isfinite(val));
   }
 
   /** test |val - ans|_2 / N < eps */
@@ -202,15 +170,7 @@ public:
     t.put("index", count);
     t.put("N", N);
     t.put("residual", res);
-    count++;
-    if (res > eps || !std::isfinite(res)) {
-      failed_count++;
-      t.put("result", "failed");
-      return Result(t, false);
-    } else {
-      t.put("result", "success");
-      return Result(t, true);
-    }
+    return check(res > eps || !std::isfinite(val));
   }
 
   /** return the number of failed tests */
@@ -220,6 +180,19 @@ public:
   int operator+(int t) { return t + num_failed_tests(); }
   int operator+(const Test &t) {
     return t.num_failed_tests() + num_failed_tests();
+  }
+
+private:
+  Result gen_result(bool condition, ptree &t) {
+    count++;
+    if (condition) {
+      failed_count++;
+      t.put("result", "failed");
+      return Result(t, false);
+    } else {
+      t.put("result", "success");
+      return Result(t, true);
+    }
   }
 };
 
