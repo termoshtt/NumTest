@@ -2,7 +2,6 @@
 
 #include <string>
 #include <iostream>
-#include <type_traits>
 #include <memory>
 #include <cmath>
 #include <sstream>
